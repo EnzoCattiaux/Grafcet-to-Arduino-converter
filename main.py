@@ -1,7 +1,7 @@
 '''
-    Enzo Cattiaux
-    18.28 03/02/2023
-    versione 2.0
+    Enzo Cattiaux - {mettete i vostri nomi qui}
+    xx.xx xx/xx/2023
+    versione x.0
     Convertitore grafcet -> arduino
 '''
 
