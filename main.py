@@ -1,7 +1,7 @@
 '''
     Enzo Cattiaux - {mettete i vostri nomi qui}
     xx.xx xx/xx/2023
-    versione x.0
+    versione 2.x
     Convertitore grafcet -> arduino
 '''
 
