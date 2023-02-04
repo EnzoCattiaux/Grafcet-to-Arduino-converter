@@ -1,0 +1,30 @@
+I: EN, F1, F2, P
+O: HL1, K1, HAL
+M:
+
+S1:
+R|HL1
+R|K1
+if(EN) stato = S2
+
+S2:
+if(!EN) stato = S1
+if((!F1 || !F2 || !P) && (T>5s)) stato = S3
+
+S3:
+S|HL1
+N|HAL
+S|K1
+if(!EN) stato = S1
+if(T<5ms) stato = S4
+
+S4:
+N|HAL
+S|K1
+R|HL1
+if(!EN) stato = S1
+if(T>10s) stato = S3
+
+S5:
+R|HL1
+if((T>10s) && (T<20s)) stato = S2

@@ -1,0 +1,18 @@
+I: START, a1, a0
+O: HL1, A
+M:
+
+S1:
+N|HL1
+if(START) stato = S2
+
+S2:
+N|A
+if(a1) stato = S3
+
+S3:
+N|A
+if(T>5s) stato = S4
+
+S4:
+if(a0) stato = S0
