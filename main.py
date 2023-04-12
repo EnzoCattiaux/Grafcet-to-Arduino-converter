@@ -39,7 +39,6 @@ def getVS(filename) -> tuple[Variable, int, int]:
     # ------
 
     # copio i contenuti del file
-    # (il context manager chiude automaticamente il file)
     with open(filename, 'r') as f:
         # divido il contenuto in blocchi (ogni linea vuota -> '\n\n')
         blocks = f.read().split("\n\n")
@@ -55,13 +54,6 @@ def getVS(filename) -> tuple[Variable, int, int]:
     variables = [Variable(var, type)
                  for (type, line) in enumerate(blocks[0].split('\n'))
                  for var in line[3:].split(', ') if var != '']
-    # 'list comprehension'
-    '''
-        variables = []
-        for type, line in enumerate(block[0].split('\n')):
-            for var in line[3:].split(', '):
-                variables.append(Variable(var, type))
-    '''
 
     # ---
     # stati
@@ -80,15 +72,6 @@ def getVS(filename) -> tuple[Variable, int, int]:
                                           lines[1:])),
                       transitions=list(filter(lambda s: s[:2] == 'if',
                                               lines[1:])))
-        # --- 'built-in filter()' - 'anonymous function lambda',
-        '''
-        state = State(name=lines[0], actions=[], transitions=[])
-        for line in lines[1:]:
-            if line[1] == '|':
-                state.actions.append(line)
-            if line[:2] == 'if':
-                state.transitions.append(line)
-        '''
         states.append(state)
     return variables, states
 
@@ -117,20 +100,9 @@ def writeArduinoFile(filename, variables, states):
             [f.write(f"const int pin_{variable.name} = ;\n")
              for variable in variables
              if variable.type in [0, 1]]
-            '''
-            for variable in variables:
-                if variable.type != 0 and variable.type != 1: continue
-                f.write(f"const int pin_{variable.name} = ;\n")
-            '''
             f.write("\nbool "
                     + ", ".join([variable.name for variable in variables]) +
                     ";\n")
-            '''
-            f.write("\nbool ")
-            for variable in variables:
-                f.write(variable.name)
-                f.write(", ") if variable != variables[-1] else file.write(";\n")
-            '''
 
         # dichiaro le variabili di sistema e i stati
         f.write("int stato, oldStato;\n"
@@ -139,14 +111,6 @@ def writeArduinoFile(filename, variables, states):
                 + ", ".join([f"{state.name} = {i}"
                              for i, state in enumerate(states)]) +
                 ";\n")
-        '''
-        f.write("int stato, oldStato;\n"
-                "unsigned long T=millis();\n"
-                "const int ")
-        for i, variable in variables:
-            f.write(f{variable} = {i})
-            f.write(", ") if variable != variables[-1] else file.write(";\n")
-        '''
 
         # ---
         # setup
@@ -157,12 +121,6 @@ def writeArduinoFile(filename, variables, states):
                  + ("INPUT" if variable.type == 0 else "OUTPUT") +
                  ");\n")
          for variable in variables]
-        '''
-        for variabile in variables:
-            if variabile.type == 0 or variabile.type == 1:
-                f.write(f"\tpinMode(pin_{variabile.name}")
-                f.write(", INPUT);\n") if variabile.type == 0 else f.write(", OUTPUT);\n")
-        '''
 
         # ---
         # loop
@@ -174,12 +132,6 @@ def writeArduinoFile(filename, variables, states):
         # immagine lettura variabili
         [f.write(f"\t{variable.name} = digitalRead(pin_{variable.name});\n")
          for variable in variables if variable.type == 0]
-        '''
-        for variable in variables:
-            if variable.type == 0:
-                f.write(f"\t{variable.name} ="
-                         "digitalRead(pin_{variable.name});\n")
-        '''
 
         f.write("\n\tswitch(stato){\n")
 
@@ -208,17 +160,6 @@ def writeArduinoFile(filename, variables, states):
                                + string[c+len(key):]
                         c = 0
                     c += 1
-            '''
-            if "T<" in string: indx_start = string.index("T<") + 2
-            else: indx_start = string.index("T>") + 2
-            for key, value in TIME_CONV.items():
-                indx_end = string.index(")", indx_start)
-                if key in string[indx_start:indx_end]:
-                    string = string[:indx_start]\
-                    + string[indx_start:indx_end].replace(key, value)\
-                    + string[indx_end:]
-            return string
-            '''
             return string
 
         # per ogni stato mette un caso e scrive le transizioni corrispodenti
@@ -253,12 +194,6 @@ def writeArduinoFile(filename, variables, states):
          for state in states
          for action in state.actions
          if action[0] == 'N']
-        '''
-        for state in states:
-            for action in state.actions:
-                if action[0] == "N":
-                    f.write(f"\t\t{action[2:]} = LOW;\n")
-        '''
         
         f.write("\t\toldStato = stato;\n"
                 "\t}\n\n")
@@ -267,11 +202,6 @@ def writeArduinoFile(filename, variables, states):
         [f.write(f"\tdigitalWrite(pin_{variable.name}, {variable.name});\n")
          for variable in variables
          if variable.type == 1]
-        '''
-        for variable in variables:
-            if variable.type == 1:
-                f.write(f"\tdigitalWrite(pin_{variable.name}, {variable.name});\n")
-        '''
         # fine scrittura
         f.write('}')
     print("Succesfully printed file")
